@@ -11,10 +11,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         self._set_response()
         curr = conn.cursor()
-        curr.execute("SELECT * FROM requests")
-        data = curr.fetchall()
         print("GET request,\nPath: %s\nHeaders:\n%s\n", str(self.path), str(self.headers))
-        self.wfile.write("GET request for {}. Data is: {}".format(self.path, data).encode('utf-8'))
+        self.wfile.write("GET request for {}. Data is: {}".format(self.path).encode('utf-8'))
         
     def do_POST(self):
         data = self.rfile.read(int(self.headers['Content-Length']))
@@ -23,7 +21,11 @@ class Handler(BaseHTTPRequestHandler):
         curr = conn.cursor()
         curr.execute("INSERT INTO requests (data) VALUES (%s)", (data,))
         print("POST request: {}, {}".format(self.path, data))
-        self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+        #only for check
+        curr.execute("SELECT * FROM requests")
+        db_check = curr.fetchall()
+        ###
+        self.wfile.write("POST request for {}. DB: {}".format(self.path, db_check).encode('utf-8'))
         
 def run(server_class=HTTPServer, handler_class=Handler, port=9000):
     server_address = ('', port)
